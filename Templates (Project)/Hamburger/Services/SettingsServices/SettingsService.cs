@@ -6,24 +6,25 @@ using Windows.UI.Xaml;
 
 namespace Sample.Services.SettingsServices
 {
-    public class SettingsService : Template10.Services.SettingsService.SettingsServiceBase
+    public class SettingsService
     {
         public static SettingsService Instance { get; } = new SettingsService();
+        Template10.Services.SettingsService.ISettingsHelper _helper;
         private SettingsService()
         {
-            // empty
+            _helper = new Template10.Services.SettingsService.SettingsHelper();
         }
 
         public bool UseShellBackButton
         {
-            get => Read<bool>(nameof(UseShellBackButton), true);
+            get { return _helper.Read<bool>(nameof(UseShellBackButton), true); }
             set
             {
-                Write(nameof(UseShellBackButton), value);
-                Locator.WindowWrapper.Current().Dispatcher.Dispatch(() =>
+                _helper.Write(nameof(UseShellBackButton), value);
+                BootStrapper.Current.NavigationService.GetDispatcherWrapper().Dispatch(() =>
                 {
-                    Locator.BootStrapper.Instance.ShowShellBackButton = value;
-                    Locator.BootStrapper.Instance.UpdateShellBackButton();
+                    BootStrapper.Current.ShowShellBackButton = value;
+                    BootStrapper.Current.UpdateShellBackButton();
                 });
             }
         }
@@ -33,12 +34,12 @@ namespace Sample.Services.SettingsServices
             get
             {
                 var theme = ApplicationTheme.Light;
-                var value = Read<string>(nameof(AppTheme), theme.ToString());
+                var value = _helper.Read<string>(nameof(AppTheme), theme.ToString());
                 return Enum.TryParse<ApplicationTheme>(value, out theme) ? theme : ApplicationTheme.Dark;
             }
             set
             {
-                Write(nameof(AppTheme), value.ToString());
+                _helper.Write(nameof(AppTheme), value.ToString());
                 (Window.Current.Content as FrameworkElement).RequestedTheme = value.ToElementTheme();
                 Views.Shell.HamburgerMenu.RefreshStyles(value, true);
             }
@@ -46,30 +47,30 @@ namespace Sample.Services.SettingsServices
 
         public TimeSpan CacheMaxDuration
         {
-            get => Read<TimeSpan>(nameof(CacheMaxDuration), TimeSpan.FromDays(2));
+            get { return _helper.Read<TimeSpan>(nameof(CacheMaxDuration), TimeSpan.FromDays(2)); }
             set
             {
-                Write(nameof(CacheMaxDuration), value);
-                Locator.BootStrapper.Instance.CacheMaxDuration = value;
+                _helper.Write(nameof(CacheMaxDuration), value);
+                BootStrapper.Current.CacheMaxDuration = value;
             }
         }
 
         public bool ShowHamburgerButton
         {
-            get => Read<bool>(nameof(ShowHamburgerButton), true);
+            get { return _helper.Read<bool>(nameof(ShowHamburgerButton), true); }
             set
             {
-                Write(nameof(ShowHamburgerButton), value);
+                _helper.Write(nameof(ShowHamburgerButton), value);
                 Views.Shell.HamburgerMenu.HamburgerButtonVisibility = value ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
         public bool IsFullScreen
         {
-            get => Read<bool>(nameof(IsFullScreen), false);
+            get { return _helper.Read<bool>(nameof(IsFullScreen), false); }
             set
             {
-                Write(nameof(IsFullScreen), value);
+                _helper.Write(nameof(IsFullScreen), value);
                 Views.Shell.HamburgerMenu.IsFullScreen = value;
             }
         }

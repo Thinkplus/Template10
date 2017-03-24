@@ -28,7 +28,11 @@ namespace Sample
         public override UIElement CreateRootElement(IActivatedEventArgs e)
         {
             var service = NavigationServiceFactory(BackButton.Attach, ExistingContent.Exclude);
-            return new ModalDialog(new Views.Shell(service), ModalContent = new Views.Busy());
+            return new ModalDialog
+            {
+                Content = new Views.Shell(service),
+                ModalContent = new Views.Busy()
+            };
         }
 
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
