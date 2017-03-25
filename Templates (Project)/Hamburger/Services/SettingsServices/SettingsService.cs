@@ -1,6 +1,8 @@
 ﻿using System;
-using Template10;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Template10.Common;
+using Template10.Services.SettingsService;
 using Template10.Utils;
 using Windows.UI.Xaml;
 
@@ -9,21 +11,23 @@ namespace Sample.Services.SettingsServices
     public class SettingsService
     {
         public static SettingsService Instance { get; } = new SettingsService();
-        Template10.Services.SettingsService.ISettingsHelper _helper;
-        private SettingsService()
-        {
-            _helper = new Template10.Services.SettingsService.SettingsHelper();
-        }
 
-        public bool UseShellBackButton
+        public enum BackButtonLocations { AppChrome, AppTitle }
+
+        public BackButtonLocations BackButtonLocation
         {
-            get { return _helper.Read<bool>(nameof(UseShellBackButton), true); }
+            get
+            {
+                var setting = Read(BackButtonLocations.AppChrome.ToString());
+                return setting.ToEnum<BackButtonLocations>();
+            }
             set
             {
-                _helper.Write(nameof(UseShellBackButton), value);
-                BootStrapper.Current.NavigationService.GetDispatcherWrapper().Dispatch(() =>
+                Write(value.ToString());
+                DispatcherWrapper.Current().Dispatch(() =>
                 {
-                    BootStrapper.Current.ShowShellBackButton = value;
+                    var setting = value == BackButtonLocations.AppChrome ? true : false;
+                    BootStrapper.Current.ShowShellBackButton = setting;
                     BootStrapper.Current.UpdateShellBackButton();
                 });
             }
@@ -33,46 +37,98 @@ namespace Sample.Services.SettingsServices
         {
             get
             {
-                var theme = ApplicationTheme.Light;
-                var value = _helper.Read<string>(nameof(AppTheme), theme.ToString());
-                return Enum.TryParse<ApplicationTheme>(value, out theme) ? theme : ApplicationTheme.Dark;
+                var setting = Read(ApplicationTheme.Dark.ToString());
+                return setting.ToEnum<ApplicationTheme>();
             }
             set
             {
-                _helper.Write(nameof(AppTheme), value.ToString());
-                (Window.Current.Content as FrameworkElement).RequestedTheme = value.ToElementTheme();
-                Views.Shell.HamburgerMenu.RefreshStyles(value, true);
+                Write(value.ToString());
+                DispatcherWrapper.Current().Dispatch(() =>
+                {
+                    var setting = value.ToElementTheme();
+                    (Window.Current.Content as FrameworkElement).RequestedTheme = setting;
+                    Views.Shell.HamburgerMenu.RefreshStyles(value, true);
+                });
             }
         }
 
         public TimeSpan CacheMaxDuration
         {
-            get { return _helper.Read<TimeSpan>(nameof(CacheMaxDuration), TimeSpan.FromDays(2)); }
+            get
+            {
+                var setting = Read(TimeSpan.FromDays(2).ToString());
+                return setting.ToTimeSpan();
+            }
             set
             {
-                _helper.Write(nameof(CacheMaxDuration), value);
-                BootStrapper.Current.CacheMaxDuration = value;
+                Write(value.ToString());
+                DispatcherWrapper.Current().Dispatch(() =>
+                {
+                    BootStrapper.Current.CacheMaxDuration = value;
+                });
             }
         }
 
-        public bool ShowHamburgerButton
+        public enum HamburgerButtonVisibilities { Visible, Collapsed }
+
+        public HamburgerButtonVisibilities HamburgerButtonVisibility
         {
-            get { return _helper.Read<bool>(nameof(ShowHamburgerButton), true); }
+            get
+            {
+                var setting = Read(HamburgerButtonVisibilities.Visible.ToString());
+                return setting.ToEnum<HamburgerButtonVisibilities>();
+            }
             set
             {
-                _helper.Write(nameof(ShowHamburgerButton), value);
-                Views.Shell.HamburgerMenu.HamburgerButtonVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+                Write(value.ToString());
+                DispatcherWrapper.Current().Dispatch(() =>
+                {
+                    var visible = value == HamburgerButtonVisibilities.Visible;
+                    var setting = visible ? Visibility.Visible : Visibility.Collapsed;
+                    Views.Shell.HamburgerMenu.HamburgerButtonVisibility = setting;
+                });
             }
         }
 
-        public bool IsFullScreen
+        public enum FullScreenModes { FullScreen, PartialScreen }
+
+        public FullScreenModes FullScreenMode
         {
-            get { return _helper.Read<bool>(nameof(IsFullScreen), false); }
+            get
+            {
+                var setting = Read(FullScreenModes.PartialScreen.ToString());
+                return setting.ToEnum<FullScreenModes>();
+            }
             set
             {
-                _helper.Write(nameof(IsFullScreen), value);
-                Views.Shell.HamburgerMenu.IsFullScreen = value;
+                Write(value.ToString());
+                DispatcherWrapper.Current().Dispatch(() =>
+                {
+                    var setting = value == FullScreenModes.FullScreen ? true : false;
+                    Views.Shell.HamburgerMenu.IsFullScreen = setting;
+                });
             }
         }
+
+        #region private logic
+
+        private ISettingsHelper _helper;
+
+        private SettingsService()
+        {
+            _helper = new SettingsHelper();
+        }
+
+        private string Read(string otherwise, [CallerMemberName]string key = null)
+        {
+            return _helper.Read(key, otherwise ?? string.Empty);
+        }
+
+        private void Write(string value, [CallerMemberName]string key = null)
+        {
+            _helper.Write(key, value);
+        }
+
+        #endregion
     }
 }
