@@ -58,7 +58,7 @@ namespace Sample.ViewModels
                     PrimaryButtonText = "Continue",
                     SecondaryButtonText = "Cancel",
                 };
-                var result = await dialog.ShowAsyncEx();
+                var result = await dialog.ShowAsync();
                 args.Cancel = result == ContentDialogResult.Secondary;
             }
         }

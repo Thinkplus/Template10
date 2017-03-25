@@ -11,20 +11,24 @@
     <PreviewImage>NuGetLogo.png</PreviewImage>
     <Tags>T10, Template 10, UWP, UAP, Windows app, Windows 10, XAML, WinRT</Tags>
   </Metadata>
-  <Installation AllUsers="true">
-    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
-    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[14.0]" />
-    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[14.0]" />
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0)" DisplayName="Visual Studio core editor" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.Windows10SDK.14393" Version="[15.0.26208.0,16.0)" DisplayName="Windows 10 SDK (10.0.14393.0)" />
+  </Prerequisites>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0,16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[15.0,16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[15.0,16.0)" />
   </Installation>
   <Dependencies>
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
   </Dependencies>
   <Assets>
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\1 Template10Blank.zip" />
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\Template10\1 Template10Blank.zip" />
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\2 Template10Minimal.zip" />
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\Template10\2 Template10Minimal.zip" />
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\3 Template10Hamburger.zip" />
-    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Windows\Universal\Template10\3 Template10Hamburger.zip" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\1 Template10Blank.zip" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\2 Template10Minimal.zip" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\3 Template10Hamburger.zip" />
+    <!--<Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\1 Template10Blank.zip" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\2 Template10Minimal.zip" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="File" Path="ProjectTemplates" d:TargetPath="ProjectTemplates\Template 10\3 Template10Hamburger.zip" />-->
   </Assets>
 </PackageManifest>

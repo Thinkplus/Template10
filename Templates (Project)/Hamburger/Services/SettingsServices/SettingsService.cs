@@ -11,23 +11,21 @@ namespace Sample.Services.SettingsServices
     public class SettingsService
     {
         public static SettingsService Instance { get; } = new SettingsService();
-
-        public enum BackButtonLocations { AppChrome, AppTitle }
-
-        public BackButtonLocations BackButtonLocation
+        Template10.Services.SettingsService.ISettingsHelper _helper;
+        private SettingsService()
         {
-            get
-            {
-                var setting = Read(BackButtonLocations.AppChrome.ToString());
-                return setting.ToEnum<BackButtonLocations>();
-            }
+            _helper = new Template10.Services.SettingsService.SettingsHelper();
+        }
+
+        public bool UseShellBackButton
+        {
+            get { return _helper.Read<bool>(nameof(UseShellBackButton), true); }
             set
             {
-                Write(value.ToString());
-                DispatcherWrapper.Current().Dispatch(() =>
+                _helper.Write(nameof(UseShellBackButton), value);
+                BootStrapper.Current.NavigationService.GetDispatcherWrapper().Dispatch(() =>
                 {
-                    var setting = value == BackButtonLocations.AppChrome ? true : false;
-                    BootStrapper.Current.ShowShellBackButton = setting;
+                    BootStrapper.Current.ShowShellBackButton = value;
                     BootStrapper.Current.UpdateShellBackButton();
                 });
             }
@@ -37,98 +35,46 @@ namespace Sample.Services.SettingsServices
         {
             get
             {
-                var setting = Read(ApplicationTheme.Dark.ToString());
-                return setting.ToEnum<ApplicationTheme>();
+                var theme = ApplicationTheme.Light;
+                var value = _helper.Read<string>(nameof(AppTheme), theme.ToString());
+                return Enum.TryParse<ApplicationTheme>(value, out theme) ? theme : ApplicationTheme.Dark;
             }
             set
             {
-                Write(value.ToString());
-                DispatcherWrapper.Current().Dispatch(() =>
-                {
-                    var setting = value.ToElementTheme();
-                    (Window.Current.Content as FrameworkElement).RequestedTheme = setting;
-                    Views.Shell.HamburgerMenu.RefreshStyles(value, true);
-                });
+                _helper.Write(nameof(AppTheme), value.ToString());
+                (Window.Current.Content as FrameworkElement).RequestedTheme = value.ToElementTheme();
+                Views.Shell.HamburgerMenu.RefreshStyles(value, true);
             }
         }
 
         public TimeSpan CacheMaxDuration
         {
-            get
-            {
-                var setting = Read(TimeSpan.FromDays(2).ToString());
-                return setting.ToTimeSpan();
-            }
+            get { return _helper.Read<TimeSpan>(nameof(CacheMaxDuration), TimeSpan.FromDays(2)); }
             set
             {
-                Write(value.ToString());
-                DispatcherWrapper.Current().Dispatch(() =>
-                {
-                    BootStrapper.Current.CacheMaxDuration = value;
-                });
+                _helper.Write(nameof(CacheMaxDuration), value);
+                BootStrapper.Current.CacheMaxDuration = value;
             }
         }
 
-        public enum HamburgerButtonVisibilities { Visible, Collapsed }
-
-        public HamburgerButtonVisibilities HamburgerButtonVisibility
+        public bool ShowHamburgerButton
         {
-            get
-            {
-                var setting = Read(HamburgerButtonVisibilities.Visible.ToString());
-                return setting.ToEnum<HamburgerButtonVisibilities>();
-            }
+            get { return _helper.Read<bool>(nameof(ShowHamburgerButton), true); }
             set
             {
-                Write(value.ToString());
-                DispatcherWrapper.Current().Dispatch(() =>
-                {
-                    var visible = value == HamburgerButtonVisibilities.Visible;
-                    var setting = visible ? Visibility.Visible : Visibility.Collapsed;
-                    Views.Shell.HamburgerMenu.HamburgerButtonVisibility = setting;
-                });
+                _helper.Write(nameof(ShowHamburgerButton), value);
+                Views.Shell.HamburgerMenu.HamburgerButtonVisibility = value ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
-        public enum FullScreenModes { FullScreen, PartialScreen }
-
-        public FullScreenModes FullScreenMode
+        public bool IsFullScreen
         {
-            get
-            {
-                var setting = Read(FullScreenModes.PartialScreen.ToString());
-                return setting.ToEnum<FullScreenModes>();
-            }
+            get { return _helper.Read<bool>(nameof(IsFullScreen), false); }
             set
             {
-                Write(value.ToString());
-                DispatcherWrapper.Current().Dispatch(() =>
-                {
-                    var setting = value == FullScreenModes.FullScreen ? true : false;
-                    Views.Shell.HamburgerMenu.IsFullScreen = setting;
-                });
+                _helper.Write(nameof(IsFullScreen), value);
+                Views.Shell.HamburgerMenu.IsFullScreen = value;
             }
         }
-
-        #region private logic
-
-        private ISettingsHelper _helper;
-
-        private SettingsService()
-        {
-            _helper = new SettingsHelper();
-        }
-
-        private string Read(string otherwise, [CallerMemberName]string key = null)
-        {
-            return _helper.Read(key, otherwise ?? string.Empty);
-        }
-
-        private void Write(string value, [CallerMemberName]string key = null)
-        {
-            _helper.Write(key, value);
-        }
-
-        #endregion
     }
 }
